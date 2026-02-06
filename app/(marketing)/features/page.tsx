@@ -156,7 +156,7 @@ export default function FeaturesPage() {
   "models": {
     "providers": {
       "costshield": {
-        "baseUrl": "https://api.costshield.cloud",
+        "baseUrl": "https://api.costshield.dev",
         "apiKey": "${"${COSTSHIELD_API_KEY}"}"
       }
     }
@@ -204,7 +204,7 @@ export default function FeaturesPage() {
                 <code>{`// JavaScript
 const openai = new OpenAI({
   apiKey: process.env.COSTSHIELD_API_KEY,
-  baseURL: "https://api.costshield.cloud/v1"
+  baseURL: "https://api.costshield.dev/v1"
 });`}</code>
               </pre>
             </CardContent>

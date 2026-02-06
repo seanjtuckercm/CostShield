@@ -41,7 +41,7 @@ export function SoftwareApplicationSchema({
     'AES-256 Encryption',
     'OpenAI-Compatible API',
   ],
-  url = process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.cloud',
+  url = process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.dev',
 }: SoftwareApplicationSchemaProps) {
   const schema = {
     '@context': 'https://schema.org',

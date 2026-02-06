@@ -1,7 +1,6 @@
 /**
  * API Keys Management Page
- * Interface for managing CostShield API keys
- * Reference: Section 23 of COSTSHIELD_COMPLETE_PLATFORM_GUIDE.md
+ * Terminal-style interface for managing CostShield API keys
  */
 
 'use client';
@@ -11,14 +10,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -27,9 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Copy, Plus, Trash2, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Copy, Plus, Trash2, Eye, EyeOff, Loader2, Key, Check, AlertTriangle } from 'lucide-react';
 
 interface ApiKey {
   id: string;
@@ -53,7 +42,6 @@ export default function ApiKeysPage() {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set());
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  // Fetch API keys
   useEffect(() => {
     fetchKeys();
   }, []);
@@ -63,21 +51,21 @@ export default function ApiKeysPage() {
       setLoading(true);
       const response = await fetch('/api/keys');
       
-      if (!response.ok) {
+      if (!response?.ok) {
         throw new Error('Failed to fetch API keys');
       }
 
-      const data = await response.json();
-      setKeys(data.keys || []);
+      const data = await response?.json();
+      setKeys(data?.keys ?? []);
     } catch (err: any) {
-      setError(err.message || 'Failed to load API keys');
+      setError(err?.message ?? 'Failed to load API keys');
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreateKey = async () => {
-    if (!newKeyName.trim()) {
+    if (!newKeyName?.trim()) {
       setError('Please enter a name for the API key');
       return;
     }
@@ -92,25 +80,25 @@ export default function ApiKeysPage() {
         body: JSON.stringify({ name: newKeyName }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to create API key');
+      if (!response?.ok) {
+        const data = await response?.json();
+        throw new Error(data?.error ?? 'Failed to create API key');
       }
 
-      const data = await response.json();
-      setNewKey(data.key);
+      const data = await response?.json();
+      setNewKey(data?.key ?? null);
       setShowNewKey(true);
       setNewKeyName('');
       await fetchKeys();
     } catch (err: any) {
-      setError(err.message || 'Failed to create API key');
+      setError(err?.message ?? 'Failed to create API key');
     } finally {
       setCreating(false);
     }
   };
 
   const handleDeleteKey = async (keyId: string) => {
-    if (!confirm('Are you sure you want to delete this API key? This action cannot be undone.')) {
+    if (!confirm('Delete this API key? This action cannot be undone.')) {
       return;
     }
 
@@ -119,13 +107,13 @@ export default function ApiKeysPage() {
         method: 'DELETE',
       });
 
-      if (!response.ok) {
+      if (!response?.ok) {
         throw new Error('Failed to delete API key');
       }
 
       await fetchKeys();
     } catch (err: any) {
-      setError(err.message || 'Failed to delete API key');
+      setError(err?.message ?? 'Failed to delete API key');
     }
   };
 
@@ -140,7 +128,7 @@ export default function ApiKeysPage() {
   const toggleKeyVisibility = (keyId: string) => {
     setVisibleKeys(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(keyId)) {
+      if (newSet?.has(keyId)) {
         newSet.delete(keyId);
       } else {
         newSet.add(keyId);
@@ -150,61 +138,67 @@ export default function ApiKeysPage() {
   };
 
   const maskKey = (key: string) => {
-    if (!key) return '***';
-    if (key.startsWith('cs_live_')) {
-      return `cs_live_${'•'.repeat(32)}`;
+    if (!key) return '•'.repeat(32);
+    if (key?.startsWith('cs_live_')) {
+      return `cs_live_${'•'.repeat(24)}`;
     }
-    return `${key.substring(0, 10)}${'•'.repeat(Math.max(0, key.length - 10))}`;
+    return `${key?.substring(0, 8) ?? ''}${'•'.repeat(Math.max(0, (key?.length ?? 0) - 8))}`;
   };
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Never';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
+    const date = new Date(dateString);
+    return date?.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    });
+    }) ?? dateString;
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">API Keys</h1>
-          <p className="text-gray-600 mt-2">
-            Manage your CostShield API keys for proxy authentication
-          </p>
+    <div className="p-6 lg:p-8 space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-sm text-dev-muted font-mono">
+            <span className="text-dev-accent">~</span>
+            <span>/api-keys</span>
+          </div>
+          <h1 className="text-2xl font-semibold text-dev-text">API Keys</h1>
+          <p className="text-sm text-dev-muted">Manage authentication keys for the CostShield proxy</p>
         </div>
+        
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-dev-accent text-dev-bg hover:bg-dev-accent/90 font-mono text-sm rounded-sm">
               <Plus className="mr-2 h-4 w-4" />
-              Create New Key
+              New Key
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[500px] bg-dev-surface border-dev-border">
             <DialogHeader>
-              <DialogTitle>Create New API Key</DialogTitle>
-              <DialogDescription>
-                Give your API key a name to help you identify it later.
+              <DialogTitle className="text-dev-text font-mono">Create API Key</DialogTitle>
+              <DialogDescription className="text-dev-muted">
+                Give your key a name for identification.
               </DialogDescription>
             </DialogHeader>
             {!newKey ? (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="key-name">Key Name</Label>
+                  <Label htmlFor="key-name" className="text-dev-text text-sm font-mono">Key Name</Label>
                   <Input
                     id="key-name"
-                    placeholder="e.g., Production Key, Development Key"
+                    placeholder="production, development, staging..."
                     value={newKeyName}
-                    onChange={(e) => setNewKeyName(e.target.value)}
+                    onChange={(e) => setNewKeyName(e?.target?.value ?? '')}
                     disabled={creating}
+                    className="bg-dev-bg border-dev-border text-dev-text font-mono placeholder:text-dev-muted/50"
                   />
                 </div>
                 {error && (
-                  <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+                  <div className="flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-sm text-sm text-red-400 font-mono">
+                    <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                     {error}
                   </div>
                 )}
@@ -217,10 +211,15 @@ export default function ApiKeysPage() {
                       setError(null);
                     }}
                     disabled={creating}
+                    className="border-dev-border text-dev-muted hover:text-dev-text"
                   >
                     Cancel
                   </Button>
-                  <Button onClick={handleCreateKey} disabled={creating || !newKeyName.trim()}>
+                  <Button 
+                    onClick={handleCreateKey} 
+                    disabled={creating || !newKeyName?.trim()}
+                    className="bg-dev-accent text-dev-bg hover:bg-dev-accent/90 font-mono"
+                  >
                     {creating ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -235,38 +234,32 @@ export default function ApiKeysPage() {
             ) : (
               <>
                 <div className="space-y-4">
-                  <div className="rounded-md bg-yellow-50 border border-yellow-200 p-4">
-                    <p className="text-sm font-semibold text-yellow-800 mb-2">
-                      ⚠️ Save this key now!
-                    </p>
-                    <p className="text-sm text-yellow-700">
-                      You will not be able to see this key again. Make sure to copy it to a secure location.
-                    </p>
+                  <div className="flex items-start gap-3 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-sm">
+                    <AlertTriangle className="h-4 w-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm">
+                      <p className="font-semibold text-yellow-500">Save this key now</p>
+                      <p className="text-dev-muted mt-1">You won't be able to see it again.</p>
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Your API Key</Label>
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        type={showNewKey ? 'text' : 'password'}
-                        value={newKey}
-                        readOnly
-                        className="font-mono"
-                      />
+                    <Label className="text-dev-text text-sm font-mono">Your API Key</Label>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 bg-dev-bg border border-dev-border rounded-sm px-3 py-2 font-mono text-sm text-dev-accent overflow-x-auto">
+                        {showNewKey ? newKey : maskKey(newKey ?? '')}
+                      </div>
                       <Button
                         variant="outline"
                         size="icon"
                         onClick={() => setShowNewKey(!showNewKey)}
+                        className="border-dev-border text-dev-muted hover:text-dev-text"
                       >
-                        {showNewKey ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
+                        {showNewKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => handleCopyKey(newKey)}
+                        onClick={() => handleCopyKey(newKey ?? '')}
+                        className="border-dev-border text-dev-muted hover:text-dev-accent"
                       >
                         <Copy className="h-4 w-4" />
                       </Button>
@@ -282,6 +275,7 @@ export default function ApiKeysPage() {
                       setNewKeyName('');
                       setError(null);
                     }}
+                    className="bg-dev-accent text-dev-bg hover:bg-dev-accent/90 font-mono"
                   >
                     Done
                   </Button>
@@ -293,105 +287,92 @@ export default function ApiKeysPage() {
       </div>
 
       {error && !isCreateDialogOpen && (
-        <div className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+        <div className="flex items-center gap-2 px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-sm text-sm text-red-400 font-mono">
+          <AlertTriangle className="h-4 w-4 flex-shrink-0" />
           {error}
         </div>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Your API Keys</CardTitle>
-          <CardDescription>
-            Use these keys to authenticate requests to the CostShield proxy
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="text-center py-8 text-gray-500">Loading...</div>
-          ) : keys.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <p className="mb-4">No API keys yet.</p>
-              <p className="text-sm">Create your first API key to start using the proxy.</p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="min-w-[120px]">Name</TableHead>
-                    <TableHead className="min-w-[280px]">API Key</TableHead>
-                    <TableHead className="min-w-[80px]">Status</TableHead>
-                    <TableHead className="min-w-[120px] hidden md:table-cell">Last Used</TableHead>
-                    <TableHead className="min-w-[120px] hidden lg:table-cell">Created</TableHead>
-                    <TableHead className="text-right min-w-[100px]">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {keys.map((key) => (
-                    <TableRow key={key.id}>
-                      <TableCell className="font-medium whitespace-nowrap">{key.name}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-sm">
-                            {visibleKeys.has(key.id) ? key.key_prefix : maskKey(key.key_prefix)}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                            onClick={() => toggleKeyVisibility(key.id)}
-                            title={visibleKeys.has(key.id) ? 'Hide key' : 'Show key'}
-                          >
-                            {visibleKeys.has(key.id) ? (
-                              <EyeOff className="h-3 w-3" />
-                            ) : (
-                              <Eye className="h-3 w-3" />
-                            )}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6"
-                            onClick={() => handleCopyKey(key.key_prefix, key.id)}
-                            title="Copy key"
-                          >
-                            {copiedKey === key.id ? (
-                              <span className="text-xs text-green-600">✓</span>
-                            ) : (
-                              <Copy className="h-3 w-3" />
-                            )}
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={key.is_active ? 'default' : 'secondary'}>
-                          {key.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600 whitespace-nowrap hidden md:table-cell">
-                        {formatDate(key.last_used_at)}
-                      </TableCell>
-                      <TableCell className="text-sm text-gray-600 whitespace-nowrap hidden lg:table-cell">
-                        {formatDate(key.created_at)}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDeleteKey(key.id)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Keys List */}
+      <div className="card-terminal">
+        <div className="flex items-center gap-2 mb-4 pb-4 border-b border-dev-border">
+          <Key className="h-4 w-4 text-dev-accent" />
+          <span className="text-sm font-mono text-dev-muted uppercase tracking-wide">Active Keys</span>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-6 w-6 text-dev-muted animate-spin" />
+          </div>
+        ) : (keys?.length ?? 0) === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <Key className="h-8 w-8 text-dev-border mb-3" />
+            <p className="text-dev-muted text-sm">No API keys yet</p>
+            <p className="text-dev-muted/60 text-xs mt-1 font-mono">Create your first key to start using the proxy</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {keys?.map((key) => (
+              <div 
+                key={key?.id}
+                className="flex items-center gap-3 px-3 py-3 bg-dev-bg rounded-sm border border-dev-border/50 hover:border-dev-border transition-colors"
+              >
+                {/* Status indicator */}
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${key?.is_active ? 'bg-dev-accent' : 'bg-dev-muted'}`} />
+
+                {/* Name */}
+                <div className="w-32 flex-shrink-0">
+                  <span className="font-mono text-sm text-dev-text truncate block">{key?.name ?? 'Unnamed'}</span>
+                </div>
+
+                {/* Key */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-sm text-dev-muted truncate">
+                      {visibleKeys?.has(key?.id) ? key?.key_prefix : maskKey(key?.key_prefix)}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-dev-muted hover:text-dev-text"
+                      onClick={() => toggleKeyVisibility(key?.id)}
+                    >
+                      {visibleKeys?.has(key?.id) ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-dev-muted hover:text-dev-accent"
+                      onClick={() => handleCopyKey(key?.key_prefix, key?.id)}
+                    >
+                      {copiedKey === key?.id ? (
+                        <Check className="h-3 w-3 text-dev-accent" />
+                      ) : (
+                        <Copy className="h-3 w-3" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Last used */}
+                <div className="hidden md:block w-32 text-right flex-shrink-0">
+                  <span className="font-mono text-xs text-dev-muted">{formatDate(key?.last_used_at)}</span>
+                </div>
+
+                {/* Delete */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleDeleteKey(key?.id)}
+                  className="h-8 w-8 text-dev-muted hover:text-red-500 hover:bg-red-500/10 flex-shrink-0"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            )) ?? null}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

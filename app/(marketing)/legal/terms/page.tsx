@@ -87,7 +87,7 @@ export default function TermsPage() {
             If you have questions about these Terms, please contact us at:
           </p>
           <p>
-            Email: legal@costshield.cloud<br />
+            Email: legal@costshield.dev<br />
             Address: [Your Company Address]
           </p>
         </section>

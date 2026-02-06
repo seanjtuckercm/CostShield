@@ -1,97 +1,190 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { TabsCode } from "@/components/ui/tabs-code";
+import { CommandLine } from "@/components/ui/code-block";
+import { ArrowRight, Shield, Zap, BarChart3, Copy, Check } from "lucide-react";
 
 export function HeroSection() {
-  return (
-    <section className="relative min-h-[90vh] flex items-center bg-gradient-to-b from-gray-900 to-gray-950 pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
-          {/* Left Column: Text Content (60%) */}
-          <div className="lg:col-span-3 space-y-8">
-            {/* Pre-Headline Badge */}
-            <Badge className="bg-brand-green/10 text-brand-green border-brand-green/20 px-4 py-1.5">
-              🛡️ Budget Protection for AI Developers
-            </Badge>
+  const [copied, setCopied] = useState(false);
 
-            {/* Main Headline */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-              Your AI Budget,{" "}
-              <span className="bg-gradient-to-r from-brand-green to-brand-blue bg-clip-text text-transparent">
-                Protected.
-              </span>
-              <br />
-              Your Costs,{" "}
-              <span className="bg-gradient-to-r from-brand-green to-brand-blue bg-clip-text text-transparent">
-                Optimized.
-              </span>
+  const curlCommand = `curl -X POST https://costshield.dev/api/proxy/v1/chat/completions \\
+  -H "Authorization: Bearer cs_live_YOUR_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model": "gpt-4", "messages": [{"role": "user", "content": "Hello"}]}'`;
+
+  const codeTabs = [
+    {
+      label: "curl",
+      language: "bash",
+      code: `curl -X POST https://costshield.dev/api/proxy/v1/chat/completions \\
+  -H "Authorization: Bearer cs_live_YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "gpt-4",
+    "messages": [{"role": "user", "content": "Hello"}]
+  }'`,
+    },
+    {
+      label: "Python",
+      language: "python",
+      code: `import openai
+
+client = openai.OpenAI(
+    api_key="cs_live_YOUR_API_KEY",
+    base_url="https://costshield.dev/api/proxy"
+)
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "Hello"}]
+)
+
+print(response.choices[0].message.content)`,
+    },
+    {
+      label: "Node.js",
+      language: "javascript",
+      code: `import OpenAI from 'openai';
+
+const client = new OpenAI({
+  apiKey: 'cs_live_YOUR_API_KEY',
+  baseURL: 'https://costshield.dev/api/proxy',
+});
+
+const response = await client.chat.completions.create({
+  model: 'gpt-4',
+  messages: [{ role: 'user', content: 'Hello' }],
+});
+
+console.log(response.choices[0].message.content);`,
+    },
+  ];
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(curlCommand);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <section className="min-h-screen bg-dev-bg pt-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+        {/* Main content grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+          {/* Left: Text content */}
+          <div className="space-y-8">
+            {/* Pre-headline */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-dev-surface border border-dev-border rounded-sm text-sm font-mono">
+              <span className="w-2 h-2 bg-dev-accent rounded-full animate-pulse" />
+              <span className="text-dev-muted">OpenAI-compatible proxy</span>
+            </div>
+
+            {/* Main headline */}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-dev-text leading-tight">
+              Hard budget limits for{" "}
+              <span className="text-dev-accent">OpenAI</span>
             </h1>
 
-            {/* Sub-Headline */}
-            <p className="text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed">
-              CostShield is the OpenAI proxy that enforces budget limits, tracks every token, and prevents runaway costs—so you can build with AI fearlessly.
+            {/* Sub-headline */}
+            <p className="text-lg md:text-xl text-dev-muted max-w-lg leading-relaxed">
+              Drop-in proxy that enforces spend limits, tracks every request, and blocks when you hit your budget. 
+              <span className="text-dev-text"> Ship AI features without fear.</span>
             </p>
 
-            {/* CTA Buttons */}
+            {/* Quick curl command */}
+            <div className="space-y-2">
+              <span className="text-xs text-dev-muted font-mono uppercase tracking-wide">Get started in 30 seconds</span>
+              <div className="flex items-center gap-2 bg-dev-surface border border-dev-border rounded-sm px-4 py-3 font-mono text-sm group">
+                <span className="text-dev-accent select-none">$</span>
+                <span className="text-dev-text flex-1 overflow-x-auto whitespace-nowrap">
+                  curl -X POST costshield.dev/api/proxy/v1/chat/completions ...
+                </span>
+                <button
+                  onClick={handleCopy}
+                  className="text-dev-muted hover:text-dev-accent transition-colors flex-shrink-0"
+                >
+                  {copied ? <Check className="w-4 h-4 text-dev-accent" /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* CTA buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 asChild
                 size="lg"
-                className="bg-gradient-to-r from-brand-green to-brand-green-dark hover:from-brand-green-light hover:to-brand-green text-white text-base px-8 py-6 h-auto"
+                className="bg-dev-accent text-dev-bg hover:bg-dev-accent/90 font-mono text-sm px-6 py-5 h-auto rounded-sm"
               >
                 <Link href="/sign-up">
-                  Start Free - 10K requests/mo
+                  Get API Key <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
                 size="lg"
-                className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white text-base px-8 py-6 h-auto"
+                className="border-dev-border text-dev-text hover:bg-dev-surface hover:text-dev-accent font-mono text-sm px-6 py-5 h-auto rounded-sm"
               >
-                <Link href="/docs">
-                  View Docs →
-                </Link>
+                <Link href="/docs">Read the docs</Link>
               </Button>
             </div>
 
-            {/* Social Proof Line */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-              <span className="flex items-center gap-2">
-                <span className="text-brand-green">✓</span>
-                No credit card required
-              </span>
-              <span className="hidden sm:inline">•</span>
-              <span className="flex items-center gap-2">
-                <span className="text-brand-green">✓</span>
-                2 minute setup
-              </span>
-              <span className="hidden sm:inline">•</span>
-              <span className="flex items-center gap-2">
-                <span className="text-brand-green">✓</span>
-                OpenClaw native
-              </span>
+            {/* Feature pills */}
+            <div className="flex flex-wrap gap-4 text-sm">
+              <div className="flex items-center gap-2 text-dev-muted">
+                <Shield className="h-4 w-4 text-dev-accent" />
+                <span>Budget enforcement</span>
+              </div>
+              <div className="flex items-center gap-2 text-dev-muted">
+                <BarChart3 className="h-4 w-4 text-dev-cyan" />
+                <span>Real-time tracking</span>
+              </div>
+              <div className="flex items-center gap-2 text-dev-muted">
+                <Zap className="h-4 w-4 text-yellow-500" />
+                <span>~10ms latency</span>
+              </div>
             </div>
           </div>
 
-          {/* Right Column: Dashboard Visual (40%) */}
-          <div className="lg:col-span-2">
-            <div className="relative bg-gray-850 border border-gray-700 rounded-lg p-8 shadow-2xl">
-              {/* Placeholder for Dashboard Visual */}
-              <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
-                <div className="text-center space-y-4">
-                  <div className="w-16 h-16 mx-auto bg-brand-green/20 rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">📊</span>
-                  </div>
-                  <p className="text-gray-400 text-sm">
-                    Dashboard Visual
-                  </p>
-                  <p className="text-gray-500 text-xs">
-                    (Coming soon)
-                  </p>
-                </div>
-              </div>
+          {/* Right: Code block */}
+          <div className="lg:pt-8">
+            <TabsCode tabs={codeTabs} />
+          </div>
+        </div>
+
+        {/* Feature grid below */}
+        <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="card-terminal space-y-3">
+            <div className="w-10 h-10 flex items-center justify-center bg-dev-accent/10 rounded-sm">
+              <Shield className="h-5 w-5 text-dev-accent" />
             </div>
+            <h3 className="text-lg font-semibold text-dev-text">Hard Budget Limits</h3>
+            <p className="text-sm text-dev-muted leading-relaxed">
+              Set monthly or per-project limits. Requests automatically blocked when budget is reached. No surprises.
+            </p>
+          </div>
+
+          <div className="card-terminal space-y-3">
+            <div className="w-10 h-10 flex items-center justify-center bg-dev-cyan/10 rounded-sm">
+              <BarChart3 className="h-5 w-5 text-dev-cyan" />
+            </div>
+            <h3 className="text-lg font-semibold text-dev-text">Real-Time Analytics</h3>
+            <p className="text-sm text-dev-muted leading-relaxed">
+              Track spend by model, endpoint, and time. Export data via API. Full visibility into your AI costs.
+            </p>
+          </div>
+
+          <div className="card-terminal space-y-3">
+            <div className="w-10 h-10 flex items-center justify-center bg-yellow-500/10 rounded-sm">
+              <Zap className="h-5 w-5 text-yellow-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-dev-text">Drop-in Compatible</h3>
+            <p className="text-sm text-dev-muted leading-relaxed">
+              Change two lines of code. Works with OpenAI SDK, LangChain, and any OpenAI-compatible client.
+            </p>
           </div>
         </div>
       </div>

@@ -1,25 +1,35 @@
 import { ClerkProvider } from '@clerk/nextjs';
-import { Inter } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import { ToasterClient } from '@/components/ui/toaster-client';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({ 
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata = {
-  title: 'CostShield - Budget Protection for AI Developers',
-  description: 'OpenAI proxy with budget enforcement, cost tracking, and seamless OpenClaw integration.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.cloud'),
+  title: 'CostShield - OpenAI Proxy with Budget Enforcement',
+  description: 'OpenAI-compatible proxy with hard budget limits, real-time cost tracking, and automatic request blocking. Ship AI features without runaway costs.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.dev'),
   openGraph: {
-    title: 'CostShield Cloud - Budget Protection for AI Developers',
-    description: 'Enforce budget limits, track costs, optimize spending. Never worry about runaway OpenAI bills again.',
-    url: process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.cloud',
-    siteName: 'CostShield Cloud',
+    title: 'CostShield - OpenAI Proxy with Budget Enforcement',
+    description: 'Hard budget limits for OpenAI. Track costs, block runaway requests, ship with confidence.',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.dev',
+    siteName: 'CostShield',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'CostShield Cloud - Budget Protection for AI Developers',
+        alt: 'CostShield - OpenAI Proxy',
       },
     ],
     locale: 'en_US',
@@ -27,12 +37,12 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CostShield Cloud',
-    description: 'Budget protection for AI developers. Never worry about runaway OpenAI bills again.',
+    title: 'CostShield',
+    description: 'OpenAI proxy with hard budget limits. Never exceed your AI budget again.',
     images: ['/og-image.png'],
   },
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.cloud',
+    canonical: process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.dev',
   },
 };
 
@@ -46,8 +56,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const content = (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+      <head>
+        <script src="https://apps.abacus.ai/chatllm/appllm-lib.js"></script>
+      </head>
+      <body className="min-h-screen bg-dev-bg text-dev-text antialiased">
         {children}
         <ToasterClient />
       </body>

@@ -19,7 +19,20 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
+      },
       colors: {
+        // Dev-focused dark palette
+        'dev-bg': '#0a0a0a',
+        'dev-surface': '#1a1a1a',
+        'dev-border': '#2a2a2a',
+        'dev-accent': '#00ff41',
+        'dev-cyan': '#00d9ff',
+        'dev-text': '#e5e5e5',
+        'dev-muted': '#a0a0a0',
+        // Original shadcn colors mapped to dark
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -68,10 +81,20 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "terminal-blink": {
+          "0%, 50%": { opacity: "1" },
+          "51%, 100%": { opacity: "0" },
+        },
+        "glow-pulse": {
+          "0%, 100%": { boxShadow: "0 0 5px #00ff41, 0 0 10px #00ff41" },
+          "50%": { boxShadow: "0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 30px #00ff41" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "terminal-blink": "terminal-blink 1s infinite",
+        "glow-pulse": "glow-pulse 2s infinite",
       },
     },
   },

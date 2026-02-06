@@ -91,7 +91,7 @@ export default function PrivacyPage() {
             If you have questions about this Privacy Policy, please contact us at:
           </p>
           <p>
-            Email: privacy@costshield.cloud<br />
+            Email: privacy@costshield.dev<br />
             Address: [Your Company Address]
           </p>
         </section>

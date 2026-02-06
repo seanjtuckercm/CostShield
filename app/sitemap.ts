@@ -8,7 +8,7 @@ import { MetadataRoute } from 'next';
 import { getAllMDXFiles } from '@/lib/mdx';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.cloud';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.dev';
 
   // Static public pages
   const staticPages: MetadataRoute.Sitemap = [
