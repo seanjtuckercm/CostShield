@@ -1,0 +1,100 @@
+---
+title: Quickstart Guide
+description: Get started with CostShield in 5 minutes
+---
+
+# Quickstart Guide
+
+Get user from signup to first protected API call in 5 minutes.
+
+## Step 1: Create Your Account (30 seconds)
+
+1. Go to [costshield.dev/signup](https://costshield.dev/signup)
+2. Enter your email and password
+3. Verify your email (check inbox)
+
+✅ You're signed up!
+
+## Step 2: Connect Your OpenAI API Key (1 minute)
+
+1. Go to [Dashboard](https://costshield.dev/dashboard)
+2. Click "Add OpenAI Key"
+3. Paste your OpenAI API key (from [platform.openai.com](https://platform.openai.com/api-keys))
+4. Click "Save"
+
+Your key is encrypted with AES-256 and stored securely.
+
+✅ OpenAI key connected!
+
+## Step 3: Set Your Budget (30 seconds)
+
+1. Go to [Budget Settings](https://costshield.dev/budget)
+2. Set your monthly limit (e.g., $50)
+3. Optional: Set soft limit (e.g., 80% = $40)
+4. Click "Save"
+
+Your budget is now enforced on all API calls.
+
+✅ Budget protected!
+
+## Step 4: Get Your CostShield API Key (30 seconds)
+
+1. Go to [API Keys](https://costshield.dev/keys)
+2. Click "Create New Key"
+3. Copy the generated key (starts with `cs_`)
+
+⚠️ **Important:** Save this key securely. You won't see it again.
+
+✅ CostShield API key created!
+
+## Step 5: Update Your Code (2 minutes)
+
+Replace your OpenAI base URL and API key:
+
+### JavaScript/Node.js
+
+```javascript
+const openai = new OpenAI({
+  apiKey: 'cs_your_costshield_key',  // Your CostShield key
+  baseURL: 'https://api.costshield.dev/v1'  // CostShield proxy
+});
+```
+
+### Python
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    api_key='cs_your_costshield_key',  # Your CostShield key
+    base_url='https://api.costshield.dev/v1'  # CostShield proxy
+)
+```
+
+### cURL
+
+```bash
+curl https://api.costshield.dev/v1/chat/completions \
+  -H "Authorization: Bearer cs_your_costshield_key" \
+  -d '{"model":"gpt-4","messages":[{"role":"user","content":"Hello"}]}'
+```
+
+✅ Code updated!
+
+## Step 6: Send a Test Request
+
+Run your code. You should see:
+- ✅ Request succeeds
+- ✅ Response from OpenAI
+- ✅ Request logged in [CostShield Dashboard](https://costshield.dev/requests)
+
+Check your dashboard to see the request, tokens, and cost!
+
+🎉 **You're all set!** Your AI budget is now protected.
+
+## What's Next?
+
+- [Track your usage in the dashboard](https://costshield.dev/analytics)
+- [Set up alerts for budget thresholds](https://costshield.dev/budget)
+- [Integrate with OpenClaw](https://costshield.dev/docs/openclaw-integration)
+- [Join our community on Discord](https://discord.gg/costshield)
