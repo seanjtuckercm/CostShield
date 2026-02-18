@@ -16,7 +16,7 @@ async function handler(req: NextRequest) {
   
   // Clone headers and add required Clerk proxy headers
   const headers = new Headers(req.headers);
-  headers.set('Clerk-Proxy-Url', `${process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.dev'}/__clerk`);
+  headers.set('Clerk-Proxy-Url', `${process.env.NEXT_PUBLIC_APP_URL || 'https://costshield.dev'}/api/__clerk`);
   headers.set('Clerk-Secret-Key', process.env.CLERK_SECRET_KEY || '');
   headers.set('X-Forwarded-For', forwardedFor);
   
